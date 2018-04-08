@@ -12,6 +12,7 @@
 #define phonoOut 10
 #define tapeOut 11
 #define tunnerOut 12
+ #define debug() delay(100)
 
 typedef enum {
   cd,
@@ -19,7 +20,8 @@ typedef enum {
   phono,
   tape,
   tunner,
-  mute
+  mute,
+  none
 } keys_e;
 
 
@@ -28,14 +30,15 @@ void Init(void);
 keys_e getKey (void);
 
 
-const uint8_t entradas [] = {cdIn, auxIn, phonoIn, tapeIn, tunnerIn};
+const uint8_t entradas [] = {cdIn, auxIn, phonoIn, tapeIn, tunnerIn, muteIn};
 const uint8_t salidas  [] = {cdOut, auxOut, phonoOut, tapeOut, tunnerOut};
 
-uint8_t sizeIn = sizeof(entradas);
-uint8_t sizeOut = sizeof(salidas);
+const uint8_t sizeIn = sizeof(entradas);
+const uint8_t sizeOut = sizeof(salidas);
 
 
 keys_e key;
+keys_e keyTemp;
 keys_e oldKey;
 
 
@@ -48,7 +51,10 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
 
-  key = getKey();
+  keyTemp = getKey();
+   if(keyTemp != none){
+    key = keyTemp;
+   }
 
   if (key != oldKey ) {
 
@@ -95,7 +101,6 @@ void Init (void) {
 }
 
 keys_e getKey (void) {
-
   bool cdKey     = !digitalRead(cdIn);
   bool auxKey    = !digitalRead(auxIn);
   bool phonoKey  = !digitalRead(phonoIn);
@@ -106,7 +111,7 @@ keys_e getKey (void) {
   if (cdKey && !( auxKey | phonoKey | tapeKey | tunnerKey)) {
     Serial.println("CD");
     while (cdKey) {
-      cdKey = digitalRead(cdIn);
+      cdKey = !digitalRead(cdIn);
     }
     return cd;
   }
@@ -114,7 +119,7 @@ keys_e getKey (void) {
   if ( auxKey && !( cdKey | phonoKey | tapeKey | tunnerKey)) {
     Serial.println("AUX");
     while (auxKey) {
-      auxKey = digitalRead(auxIn);
+      auxKey = !digitalRead(auxIn);
     }
     return aux;
   }
@@ -122,7 +127,7 @@ keys_e getKey (void) {
   if ( phonoKey && !( cdKey | auxKey | tapeKey | tunnerKey)) {
     Serial.println("PHONO");
     while (phonoKey) {
-      phonoKey = digitalRead(phonoIn);
+      phonoKey = !digitalRead(phonoIn);
     }
     return phono;
   }
@@ -130,7 +135,7 @@ keys_e getKey (void) {
   if ( tapeKey && !( cdKey | auxKey | phonoKey | tunnerKey)) {
     Serial.println("TAPE");
     while (tapeKey) {
-      tapeKey = digitalRead(tapeIn);
+      tapeKey = !digitalRead(tapeIn);
     }
     return tape;
   }
@@ -138,11 +143,12 @@ keys_e getKey (void) {
   if ( tunnerKey && !( cdKey | auxKey | phonoKey | tapeKey)) {
     Serial.println("TUNNER");
     while (tunnerKey) {
-      tapeKey = digitalRead(tunnerIn);
+      tunnerKey = !digitalRead(tunnerIn);
     }
     return tunner;
   }
 
-
+   Serial.println("none");
+   return none;
 }
 
