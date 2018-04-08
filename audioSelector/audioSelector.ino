@@ -61,12 +61,16 @@ void loop() {
     if (key != mute) {
 
       for (int i = 0; i <= sizeOut; i++) {
-        if (i == key) {
-          digitalWrite(salidas[i], HIGH);
-        }
-        else {
+         //Turn off all the outputs
           digitalWrite(salidas[i], LOW);
         }
+        //Now we switch on the right pin
+        switch (key){
+          case cd     : digitalWrite(cdOut, HIGH); break;
+          case aux    : digitalWrite(auxOut, HIGH); break;
+          case phono  : digitalWrite(phonoOut, HIGH); break;
+          case tape   : digitalWrite(tapeOut, HIGH); break;
+          case tunner : digitalWrite(tunnerOut, HIGH); break;
       }
 
     }
@@ -80,7 +84,7 @@ void loop() {
     }
 
   }
-
+ delay(500); //Little pause to avoid noises
   oldKey = key;
 }
 
@@ -106,9 +110,10 @@ keys_e getKey (void) {
   bool phonoKey  = !digitalRead(phonoIn);
   bool tapeKey   = !digitalRead(tapeIn);
   bool tunnerKey = !digitalRead(tunnerIn);
+  bool muteKey   = !digitalRead(muteIn);
 
   //Check for only one key pressed and return
-  if (cdKey && !( auxKey | phonoKey | tapeKey | tunnerKey)) {
+  if (cdKey && !( auxKey | phonoKey | tapeKey | tunnerKey | muteKey)) {
     Serial.println("CD");
     while (cdKey) {
       cdKey = !digitalRead(cdIn);
@@ -116,7 +121,7 @@ keys_e getKey (void) {
     return cd;
   }
 
-  if ( auxKey && !( cdKey | phonoKey | tapeKey | tunnerKey)) {
+  if ( auxKey && !( cdKey | phonoKey | tapeKey | tunnerKey | muteKey)) {
     Serial.println("AUX");
     while (auxKey) {
       auxKey = !digitalRead(auxIn);
@@ -124,7 +129,7 @@ keys_e getKey (void) {
     return aux;
   }
 
-  if ( phonoKey && !( cdKey | auxKey | tapeKey | tunnerKey)) {
+  if ( phonoKey && !( cdKey | auxKey | tapeKey | tunnerKey | muteKey)) {
     Serial.println("PHONO");
     while (phonoKey) {
       phonoKey = !digitalRead(phonoIn);
@@ -132,7 +137,7 @@ keys_e getKey (void) {
     return phono;
   }
 
-  if ( tapeKey && !( cdKey | auxKey | phonoKey | tunnerKey)) {
+  if ( tapeKey && !( cdKey | auxKey | phonoKey | tunnerKey | muteKey)) {
     Serial.println("TAPE");
     while (tapeKey) {
       tapeKey = !digitalRead(tapeIn);
@@ -140,7 +145,7 @@ keys_e getKey (void) {
     return tape;
   }
 
-  if ( tunnerKey && !( cdKey | auxKey | phonoKey | tapeKey)) {
+  if ( tunnerKey && !( cdKey | auxKey | phonoKey | tapeKey | muteKey)) {
     Serial.println("TUNNER");
     while (tunnerKey) {
       tunnerKey = !digitalRead(tunnerIn);
@@ -148,7 +153,15 @@ keys_e getKey (void) {
     return tunner;
   }
 
-   Serial.println("none");
+
+  if ( muteKey && !( cdKey | auxKey | phonoKey | tapeKey | tunnerKey)) {
+    Serial.println("MUTE");
+    while (muteKey) {
+      muteKey = !digitalRead(muteIn);
+    }
+    return mute;
+  }
+  
    return none;
 }
 
